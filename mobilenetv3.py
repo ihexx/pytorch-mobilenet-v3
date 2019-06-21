@@ -177,14 +177,14 @@ class MobileNetV3(nn.Module):
             last_conv = make_divisible(960 * width_mult)
             self.features.append(conv_1x1_bn(input_channel, last_conv, nlin_layer=Hswish))
             self.features.append(nn.AdaptiveAvgPool2d(1))
-            self.features.append(nn.Conv2d(last_conv, last_channel, 1, 1, 0))
+            self.features.append(nn.Conv2d(last_conv, self.last_channel, 1, 1, 0))
             self.features.append(Hswish(inplace=True))
         elif mode == 'small':
             last_conv = make_divisible(576 * width_mult)
             self.features.append(conv_1x1_bn(input_channel, last_conv, nlin_layer=Hswish))
             # self.features.append(SEModule(last_conv))  # refer to paper Table2, but I think this is a mistake
             self.features.append(nn.AdaptiveAvgPool2d(1))
-            self.features.append(nn.Conv2d(last_conv, last_channel, 1, 1, 0))
+            self.features.append(nn.Conv2d(last_conv, self.last_channel, 1, 1, 0))
             self.features.append(Hswish(inplace=True))
         else:
             raise NotImplementedError
@@ -195,7 +195,7 @@ class MobileNetV3(nn.Module):
         # building classifier
         self.classifier = nn.Sequential(
             nn.Dropout(p=dropout),    # refer to paper section 6
-            nn.Linear(last_channel, n_class),
+            nn.Linear(self.last_channel, n_class),
         )
 
         self._initialize_weights()
